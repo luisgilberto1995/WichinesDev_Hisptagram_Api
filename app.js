@@ -94,21 +94,43 @@ app.post('/postPublication', async (req, res) => {
 });
 
 
-app.post('/deletePublication', async (req, res) => {
+app.post('/likePublication', async (req, res) => {
 
-    var type = req.query.type;/* este sirve cuando pasas un parametro por url era el type que yo les pedia en lo de las colonias,
-                                se pueden poner n parámetros y es como el body que te explice req.query.nombreparametro
-                                */
     var body = req.body; // este es el body que siempre jalo al principio para no estar llamando a cada rato a req.body
     var id = body.id;
-
-    
-    deleteFirebase(REF_PUBLICATIONS, id);
-
-    console.log("Eliminando...");
-
+    var like = body.like;
+    var refLike = REF_PUBLICATIONS.child(id).child("likes");
+    refLike.transaction(function(currentLike)
+    {
+        return currentLike + like;
+    });
+    console.log("Likeando...");
     res.send("{\"estado\":true}");
-                
+});
+
+
+app.post('/dislikePublication', async (req, res) => {
+
+    var body = req.body; // este es el body que siempre jalo al principio para no estar llamando a cada rato a req.body
+    var id = body.id;
+    var like = body.like;
+    var refLike = REF_PUBLICATIONS.child(id).child("likes");
+    refLike.transaction(function(currentLike)
+    {
+        return currentLike + like;
+    });
+    console.log("Likeando...");
+    res.send("{\"estado\":true}");
+});
+
+
+app.post('/deletePublication', async (req, res) => {
+
+    var body = req.body; // este es el body que siempre jalo al principio para no estar llamando a cada rato a req.body
+    var id = body.id;
+    deleteFirebase(REF_PUBLICATIONS, id);
+    console.log("Eliminando...");
+    res.send("{\"estado\":true}");
 });
 
 function json_converter( response, error, access) {
