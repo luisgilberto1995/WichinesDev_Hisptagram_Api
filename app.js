@@ -72,6 +72,7 @@ app.post('/postPublication', async (req, res) => {
                 let publication  = {};
                 publication.contenido = body.contenido;
                 publication.imagen = body.imagen;
+                publication.nombre = body.nombre;
                 publication.dislikes = 0;
                 publication.likes = 0;
                 publication.fecha = fecha.getTime();
