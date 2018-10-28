@@ -13,6 +13,7 @@ var config = {
 var REF_PUBLICATIONS = firebase.database().ref('publicacion');
 var REF_LIKEPUBLICATION = firebase.database().ref('likepublicacion');
 var REF_DISLIKEPUBLICATION = firebase.database().ref('dislikepublicacion');
+var REF_HASHTAGPUBLICACION = firebase.database().ref('hashtagpublicacion');
 
 const express = require('express');
 const cors = require("cors");
@@ -60,7 +61,7 @@ app.post('/postPublication', async (req, res) => {
    var url = "http://35.227.59.137:3005/ping";
    xhr.open("POST", url, true);
    xhr.setRequestHeader("Content-Type", "application/json");
-   xhr.onreadystatechange = function () 
+   xhr.onreadystatechange = async function () 
    {
        if (xhr.readyState === 4 && xhr.status === 200) 
        {
@@ -69,6 +70,8 @@ app.post('/postPublication', async (req, res) => {
            console.log("Respuesta API Vision: "+visionAnswer);
            if(visionAnswer === "OK")
            {
+               //Save post
+                let hashtags = body.hashtags;
                 let publication  = {};
                 publication.contenido = body.contenido;
                 publication.imagen = body.imagen;
@@ -76,10 +79,21 @@ app.post('/postPublication', async (req, res) => {
                 publication.dislikes = 0;
                 publication.likes = 0;
                 publication.fecha = fecha.getTime();
-                let hashtags = body.hashtags;
-                //console.log(hashtags);
                 publication.usuario = body.usuario;
-                saveFirebase(REF_PUBLICATIONS, publication);
+                let hashArray = [];
+                for(let h in hashtags)
+                {
+                    hashArray.push(hashtags[h].nombre);
+                }
+                publication.hashtags = hashArray;
+                let savedId = await saveFirebase(REF_PUBLICATIONS, publication);
+
+                //Save Hashtags
+                for(let h in hashtags)
+                {
+                    updateFirebase(REF_HASHTAGPUBLICACION.child(savedId).child(hashtags[h].nombre), true);
+                }
+                console.log("id guardado: "+savedId);
                 res.send("{\"estado\":true}");
            }
            else
@@ -171,6 +185,13 @@ function json_converter( response, error, access) {
 
 async function saveFirebase(reference, object)
 {
+    return new Promise((res, rej) => 
+    {
+        reference.push(object).then(r => 
+        {
+            res(r.getKey());
+        }).catch(rej);
+    })
     await reference.push(object);
     console.log("Guardado!");
     return true;
