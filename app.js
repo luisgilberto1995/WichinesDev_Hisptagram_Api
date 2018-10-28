@@ -14,6 +14,7 @@ var REF_PUBLICATIONS = firebase.database().ref('publicacion');
 var REF_LIKEPUBLICATION = firebase.database().ref('likepublicacion');
 var REF_DISLIKEPUBLICATION = firebase.database().ref('dislikepublicacion');
 var REF_HASHTAGPUBLICACION = firebase.database().ref('hashtagpublicacion');
+var REF_USERS = firebase.database().ref('usuarios');
 
 const express = require('express');
 const cors = require("cors");
@@ -165,6 +166,72 @@ app.post('/dislikePublication', async (req, res) => {
     res.send("{\"estado\":true}");
 });
 
+
+app.post('/deletePublication', async (req, res) => {
+
+    var body = req.body; // este es el body que siempre jalo al principio para no estar llamando a cada rato a req.body
+    var id = body.id;
+    deleteFirebase(REF_PUBLICATIONS, id);
+    console.log("Eliminando...");
+    res.send("{\"estado\":true}");
+});
+
+
+app.post('/createUser', async (req, res) => {
+
+    console.log("Guardando usuario...");
+    var body = req.body; // este es el body que siempre jalo al principio para no estar llamando a cada rato a req.body
+    //console.log(body);
+    
+    REF_USERS
+    .orderByChild("correo")
+    .equalTo(body.correo)
+    .once("value")
+    .then(function(snapshot)
+    {
+        var queryResult = snapshot.val();
+        if(!queryResult)
+        {
+            console.log("No existe, crear usuario!");
+            saveFirebase(REF_USERS, body);
+            res.send("{\"estado\":true}");
+        }
+        else
+        {
+            console.log("Usuario creado, hacer NADA");
+            res.send("{\"estado\":false}");
+        }
+    });
+});
+
+app.post('/deleteUser', async (req, res) => {
+
+    var body = req.body; // este es el body que siempre jalo al principio para no estar llamando a cada rato a req.body
+    var id = body.id;
+    deleteFirebase(REF_USERS, id);
+    console.log("Eliminando Usuario...");
+    res.send("{\"estado\":true}");
+});
+
+app.post('/updateUser', async (req, res) => {
+
+    console.log("Actualizando...");
+    var body = req.body; // este es el body que siempre jalo al principio para no estar llamando a cada rato a req.body
+    var id = body.id;
+    REF_USERS
+        .child(id)
+        .once("value")
+        .then(function(snapshot)
+    {
+        var queryUser = snapshot.val();
+        queryUser.nombre = body.nombre;
+        queryUser.edad = body.edad;
+        queryUser.pass = body.pass;
+        console.log(queryUser);
+        updateFirebase(REF_USERS.child(id), queryUser);
+        res.send("{\"estado\":true}");
+    });
+});
 
 app.post('/deletePublication', async (req, res) => {
 
