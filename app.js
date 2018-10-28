@@ -11,6 +11,8 @@ var config = {
   firebase.initializeApp(config);
 
 var REF_PUBLICATIONS = firebase.database().ref('publicacion');
+var REF_LIKEPUBLICATION = firebase.database().ref('likepublicacion');
+var REF_DISLIKEPUBLICATION = firebase.database().ref('dislikepublicacion');
 
 const express = require('express');
 const cors = require("cors");
@@ -99,12 +101,27 @@ app.post('/likePublication', async (req, res) => {
     var body = req.body; // este es el body que siempre jalo al principio para no estar llamando a cada rato a req.body
     var id = body.id;
     var like = body.like;
+    var userid = body.userid;
     var refLike = REF_PUBLICATIONS.child(id).child("likes");
     refLike.transaction(function(currentLike)
     {
         return currentLike + like;
     });
-    console.log("Likeando...");
+
+    REF_LIKEPUBLICATION.child(userid).child(id).transaction(function(likebool)
+    {
+        if(like === 1)
+        {
+            console.log("likeando");
+            return true;
+        }
+        else
+        {
+            console.log("deslikeando");
+            return null;
+        }
+    });
+        
     res.send("{\"estado\":true}");
 });
 
@@ -114,12 +131,22 @@ app.post('/dislikePublication', async (req, res) => {
     var body = req.body; // este es el body que siempre jalo al principio para no estar llamando a cada rato a req.body
     var id = body.id;
     var like = body.like;
-    var refLike = REF_PUBLICATIONS.child(id).child("likes");
+    var userid = body.userid;
+    var refLike = REF_PUBLICATIONS.child(id).child("dislikes");
     refLike.transaction(function(currentLike)
     {
+        if(like === 1)
+        {
+            console.log("likeando");
+            updateFirebase(REF_DISLIKEPUBLICATION.child(userid).child(id), true);
+        }
+        else
+        {
+            console.log("deslikeando");
+            deleteFirebase(REF_DISLIKEPUBLICATION.child(userid), id);
+        }
         return currentLike + like;
     });
-    console.log("Likeando...");
     res.send("{\"estado\":true}");
 });
 
@@ -148,6 +175,12 @@ async function saveFirebase(reference, object)
     return true;
 }
 
+async function updateFirebase(reference, object)
+{
+    await reference.set(object);
+    console.log("Actualizado!");
+    return true;
+}
 
 async function deleteFirebase(reference, id)
 {
