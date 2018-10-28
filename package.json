@@ -8,11 +8,13 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "cookie-parser": "~1.4.3",
+    "cors": "^2.8.4",
     "debug": "~2.6.9",
     "express": "^4.16.4",
     "firebase": "^5.5.6",
     "http-errors": "~1.6.2",
     "jade": "~1.11.0",
-    "morgan": "~1.9.0"
+    "morgan": "~1.9.0",
+    "xmlhttprequest": "^1.8.0"
   }
 }
