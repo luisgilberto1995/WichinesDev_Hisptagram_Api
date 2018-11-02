@@ -22,6 +22,7 @@ var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
 const bodyParser = require('body-parser');
 
+
 const app = express();
 
 app.use(bodyParser.urlencoded({extended:true}));
@@ -121,23 +122,19 @@ app.post('/likePublication', async (req, res) => {
     var refLike = REF_PUBLICATIONS.child(id).child("likes");
     refLike.transaction(function(currentLike)
     {
-        return currentLike + like;
-    });
-
-    REF_LIKEPUBLICATION.child(userid).child(id).transaction(function(likebool)
-    {
         if(like === 1)
         {
             console.log("likeando");
-            return true;
+            updateFirebase(REF_LIKEPUBLICATION.child(userid).child(id), true);
         }
         else
         {
             console.log("deslikeando");
-            return null;
+            deleteFirebase(REF_LIKEPUBLICATION.child(userid), id);
         }
+        return currentLike + like;
     });
-        
+
     res.send("{\"estado\":true}");
 });
 
@@ -153,12 +150,12 @@ app.post('/dislikePublication', async (req, res) => {
     {
         if(like === 1)
         {
-            console.log("likeando");
+            console.log("dislikeando");
             updateFirebase(REF_DISLIKEPUBLICATION.child(userid).child(id), true);
         }
         else
         {
-            console.log("deslikeando");
+            console.log("disdeslikeando");
             deleteFirebase(REF_DISLIKEPUBLICATION.child(userid), id);
         }
         return currentLike + like;
@@ -277,3 +274,4 @@ async function deleteFirebase(reference, id)
     console.log("Borrado!");
     return true;
 }
+
