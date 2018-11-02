@@ -59,10 +59,37 @@ app.post('/postPublication', async (req, res) => {
    console.log("Publicando...");
    let fecha = new Date();
    var xhr = new XMLHttpRequest();
+   var xhr2 = new XMLHttpRequest();
    var url = "http://35.227.59.137:3005/ping";
+   var url2 = "http://35.229.53.20:3000/filter";
+
    xhr.open("POST", url, true);
+   xhr2.open("POST",url2,true);
+   xhr2.setRequestHeader("Content-Type", "application/json");
    xhr.setRequestHeader("Content-Type", "application/json");
-   xhr.onreadystatechange = async function () 
+   xhr2.onreadystatechange = async function ()
+    {
+        if (xhr2.readyState === 4 && xhr2.status === 200)
+        {
+            //LEYENDO RESPUESTA APIVISION
+            var badwords = xhr2.responseText;
+            console.log("Respuesta API Vision: "+badwords);
+            if(badwords === "OK")
+            {
+                var imagen = {};
+                imagen.url = body.imagen;
+                imagen.name = "x.jpg";
+                var data = JSON.stringify(imagen);
+                xhr.send(data);
+            }
+            else
+            {
+                res.send("{\"estado\":false}");
+            }
+        }
+    };
+
+   xhr.onreadystatechange = async function ()
    {
        if (xhr.readyState === 4 && xhr.status === 200) 
        {
@@ -92,7 +119,7 @@ app.post('/postPublication', async (req, res) => {
                 //Save Hashtags
                 for(let h in hashtags)
                 {
-                    updateFirebase(REF_HASHTAGPUBLICACION.child(savedId).child(hashtags[h].nombre), true);
+                    //updateFirebase(REF_HASHTAGPUBLICACION.child(savedId).child(hashtags[h].nombre), true);
                 }
                 console.log("id guardado: "+savedId);
                 res.send("{\"estado\":true}");
@@ -104,13 +131,11 @@ app.post('/postPublication', async (req, res) => {
        }
    };
    console.log("Inicio el test API Vision...");
-   var imagen = {};
-   imagen.url = body.imagen;
-   imagen.name = "x.jpg";
-   var data = JSON.stringify(imagen);
-   xhr.send(data);
+   var etiquetas = {};
+   etiquetas.hashtags = body.hashtags;
+   var data = JSON.stringify(etiquetas);
+   xhr2.send(data);
 });
-
 
 app.post('/likePublication', async (req, res) => {
 
