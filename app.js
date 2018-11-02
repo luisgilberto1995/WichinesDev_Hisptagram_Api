@@ -39,7 +39,7 @@ app.listen(3005,function()
 {
     console.log('Servidor iniciado');
 });
-
+//Jeninks test
 app.post('/postPublication', async (req, res) => {
 
     var type = req.query.type;/* este sirve cuando pasas un parametro por url era el type que yo les pedia en lo de las colonias,
