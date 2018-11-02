@@ -119,7 +119,7 @@ app.post('/postPublication', async (req, res) => {
                 //Save Hashtags
                 for(let h in hashtags)
                 {
-                    //updateFirebase(REF_HASHTAGPUBLICACION.child(savedId).child(hashtags[h].nombre), true);
+                    updateFirebase(REF_HASHTAGPUBLICACION.child(savedId).child(hashtags[h].nombre), true);
                 }
                 console.log("id guardado: "+savedId);
                 res.send("{\"estado\":true}");
