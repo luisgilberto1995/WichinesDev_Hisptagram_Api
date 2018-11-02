@@ -18,6 +18,7 @@ var REF_USERS = firebase.database().ref('usuarios');
 
 const express = require('express');
 const cors = require("cors");
+
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
 const bodyParser = require('body-parser');
@@ -29,7 +30,7 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 
 app.use(cors({origin:true}));
-
+//pruebas para jenkins
 app.get('/',function (req,res)
 {
     res.send('Hello World!');
@@ -119,26 +120,22 @@ app.post('/likePublication', async (req, res) => {
     var like = body.like;
     var userid = body.userid;
     var refLike = REF_PUBLICATIONS.child(id).child("likes");
-    refLike.transaction(function(currentLike)
-    {
-        return currentLike + like;
-    });
 
-    REF_LIKEPUBLICATION.child(userid).child(id).transaction(function(likebool)
+    refLike.transaction(function(currentLike)
     {
         if(like === 1)
         {
             console.log("likeando");
-            return true;
+            updateFirebase(REF_LIKEPUBLICATION.child(userid).child(id), true);
         }
         else
         {
             console.log("deslikeando");
-            return null;
+            deleteFirebase(REF_LIKEPUBLICATION.child(userid), id);
         }
+        return currentLike + like;
     });
-        
-    res.send("{\"estado\":true}");
+    res.send("likeando!");
 });
 
 
