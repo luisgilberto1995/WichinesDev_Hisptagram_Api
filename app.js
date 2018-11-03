@@ -22,6 +22,7 @@ var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
 const bodyParser = require('body-parser');
 
+
 const app = express();
 
 app.use(bodyParser.urlencoded({extended:true}));
@@ -119,25 +120,22 @@ app.post('/likePublication', async (req, res) => {
     var like = body.like;
     var userid = body.userid;
     var refLike = REF_PUBLICATIONS.child(id).child("likes");
+    console.log("likeando userid:"+userid+" id:"+id+" like:"+like);
     refLike.transaction(function(currentLike)
-    {
-        return currentLike + like;
-    });
-
-    REF_LIKEPUBLICATION.child(userid).child(id).transaction(function(likebool)
     {
         if(like === 1)
         {
             console.log("likeando");
-            return true;
+            updateFirebase(REF_LIKEPUBLICATION.child(userid).child(id), true);
         }
         else
         {
             console.log("deslikeando");
-            return null;
+            deleteFirebase(REF_LIKEPUBLICATION.child(userid), id);
         }
+        return currentLike + like;
     });
-        
+
     res.send("{\"estado\":true}");
 });
 
@@ -149,16 +147,16 @@ app.post('/dislikePublication', async (req, res) => {
     var like = body.like;
     var userid = body.userid;
     var refLike = REF_PUBLICATIONS.child(id).child("dislikes");
+    console.log("dislikeando userid:"+userid+" id:"+id+" like:"+like);
     refLike.transaction(function(currentLike)
     {
         if(like === 1)
         {
-            console.log("likeando");
             updateFirebase(REF_DISLIKEPUBLICATION.child(userid).child(id), true);
         }
         else
         {
-            console.log("deslikeando");
+            //console.log("disdeslikeando");
             deleteFirebase(REF_DISLIKEPUBLICATION.child(userid), id);
         }
         return currentLike + like;
@@ -266,14 +264,24 @@ async function saveFirebase(reference, object)
 
 async function updateFirebase(reference, object)
 {
-    await reference.set(object);
-    console.log("Actualizado!");
+    await reference.set(object).then(function(){}).catch(function(e)
+    {
+        console.log("\n\nERROR: "+e);
+    });
+    //console.log("Actualizado!");
     return true;
 }
 
 async function deleteFirebase(reference, id)
 {
-    await reference.child(id).remove();
-    console.log("Borrado!");
+    await reference.child(id).remove().then(function()
+    {
+        console.log("Borrado!");
+    }).catch(function(e)
+    {
+        console.log("\n\nERROR: "+e);
+    });
+    //console.log("Borrado!");
     return true;
 }
+
