@@ -1,6 +1,6 @@
 var assert = require('assert');
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-var IP = "http://127.0.0.1:3005/";
+var IP = "http://18.221.96.170:3005/";
 var IDPUBLICACION = "-LQLskwVvdhnqvqBzF5j";
 
 describe('Publicaciones', function() 
