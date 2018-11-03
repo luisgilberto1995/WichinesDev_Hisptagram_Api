@@ -1,6 +1,7 @@
 var assert = require('assert');
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var IP = "http://127.0.0.1:3005/";
+var IDPUBLICACION = "-LQLskwVvdhnqvqBzF5j";
 
 describe('Publicaciones', function() 
 {
@@ -36,7 +37,7 @@ describe('Publicaciones', function()
         it('Debería devolver terminado (+1 like)', function(done) 
         {
             var testObject = {};
-            testObject.id = "-LQLQoQgOsn7okcN8hsr";
+            testObject.id = IDPUBLICACION;
             testObject.like = 1;
             testObject.userid = "testuser";
             
@@ -49,6 +50,7 @@ describe('Publicaciones', function()
             {
                 if (xhr.readyState === 4 && xhr.status === 200) 
                 {
+                    console.log(xhr.responseText);
                     done();
                 }
             };
@@ -59,7 +61,7 @@ describe('Publicaciones', function()
         it('Debería devolver terminado (-1 like)', function(done) 
         {
             var testObject = {};
-            testObject.id = "-LQLQoQgOsn7okcN8hsr";
+            testObject.id = IDPUBLICACION;
             testObject.like = -1;
             testObject.userid = "testuser";
             
@@ -78,7 +80,54 @@ describe('Publicaciones', function()
             var data = JSON.stringify(testObject);
             xhr.send(data);
             
+        }),
+        it('Debería devolver terminado (+1 dislike)', function(done) 
+        {
+            var testObject = {};
+            testObject.id = IDPUBLICACION;
+            testObject.like = 1;
+            testObject.userid = "testuser";
+            
+            
+            var xhr = new XMLHttpRequest();
+            var url = IP+"dislikePublication";
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () 
+            {
+                if (xhr.readyState === 4 && xhr.status === 200) 
+                {
+                    console.log(xhr.responseText);
+                    done();
+                }
+            };
+            var data = JSON.stringify(testObject);
+            xhr.send(data);
+            
+        }),
+        it('Debería devolver terminado (-1 like)', function(done) 
+        {
+            var testObject = {};
+            testObject.id = IDPUBLICACION;
+            testObject.like = -1;
+            testObject.userid = "testuser";
+            
+            
+            var xhr = new XMLHttpRequest();
+            var url = IP+"dislikePublication";
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () 
+            {
+                if (xhr.readyState === 4 && xhr.status === 200) 
+                {
+                    done();
+                }
+            };
+            var data = JSON.stringify(testObject);
+            xhr.send(data);
+            
         });
     });
-});
 
+});
